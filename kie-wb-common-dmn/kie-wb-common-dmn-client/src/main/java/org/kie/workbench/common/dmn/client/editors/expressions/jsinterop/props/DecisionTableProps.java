@@ -22,6 +22,7 @@ import static org.kie.workbench.common.dmn.client.editors.expressions.types.Expr
 
 @JsType
 public class DecisionTableProps extends ExpressionProps {
+
     public final String hitPolicy;
     public final String aggregation;
     public final Annotation[] annotations;
@@ -29,15 +30,17 @@ public class DecisionTableProps extends ExpressionProps {
     public final Clause[] output;
     public final DecisionTableRule[] rules;
 
-    public DecisionTableProps(final String name,
-                              final String dataType,
-                              final String hitPolicy,
-                              final String aggregation,
-                              final Annotation[] annotations,
-                              final Clause[] input,
-                              final Clause[] output,
-                              final DecisionTableRule[] rules) {
-        super(name, dataType, DECISION_TABLE.getText());
+    public DecisionTableProps(
+            final String uid,
+            final String name,
+            final String dataType,
+            final String hitPolicy,
+            final String aggregation,
+            final Annotation[] annotations,
+            final Clause[] input,
+            final Clause[] output,
+            final DecisionTableRule[] rules) {
+        super(uid, name, dataType, DECISION_TABLE.getText());
         this.hitPolicy = hitPolicy;
         this.aggregation = aggregation;
         this.annotations = annotations;

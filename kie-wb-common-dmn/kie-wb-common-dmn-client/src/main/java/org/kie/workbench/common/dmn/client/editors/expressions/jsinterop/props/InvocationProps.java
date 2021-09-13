@@ -27,8 +27,8 @@ public class InvocationProps extends ExpressionProps{
     public final Double entryInfoWidth;
     public final Double entryExpressionWidth;
 
-    public InvocationProps(final String name, final String dataType, final String invokedFunction, final ContextEntryProps[] bindingEntries, final Double entryInfoWidth, final Double entryExpressionWidth) {
-        super(name, dataType, INVOCATION.getText());
+    public InvocationProps(final String uid, final String name, final String dataType, final String invokedFunction, final ContextEntryProps[] bindingEntries, final Double entryInfoWidth, final Double entryExpressionWidth) {
+        super(uid, name, dataType, INVOCATION.getText());
         this.invokedFunction = invokedFunction;
         this.bindingEntries = bindingEntries;
         this.entryInfoWidth = entryInfoWidth;

@@ -44,6 +44,7 @@ import org.kie.workbench.common.dmn.api.definition.model.RuleAnnotationClause;
 import org.kie.workbench.common.dmn.api.definition.model.RuleAnnotationClauseText;
 import org.kie.workbench.common.dmn.api.definition.model.UnaryTests;
 import org.kie.workbench.common.dmn.api.editors.types.BuiltInTypeUtils;
+import org.kie.workbench.common.dmn.api.property.dmn.Id;
 import org.kie.workbench.common.dmn.api.property.dmn.Name;
 import org.kie.workbench.common.dmn.api.property.dmn.QNameHolder;
 import org.kie.workbench.common.dmn.api.property.dmn.Text;
@@ -83,11 +84,13 @@ import static org.kie.workbench.common.dmn.client.editors.expressions.types.func
 public class ExpressionFiller {
 
     public static void fillLiteralExpression(final LiteralExpression literalExpression, final LiteralExpressionProps literalExpressionProps) {
+        literalExpression.setId(new Id(literalExpressionProps.uid));
         literalExpression.getComponentWidths().set(0, literalExpressionProps.width);
         literalExpression.setText(new Text(literalExpressionProps.content));
     }
 
     public static void fillContextExpression(final Context contextExpression, final ContextProps contextProps) {
+        contextExpression.setId(new Id(contextProps.uid));
         contextExpression.getComponentWidths().set(1, contextProps.entryInfoWidth);
         contextExpression.getComponentWidths().set(2, contextProps.entryExpressionWidth);
         contextExpression.getContextEntry().clear();
@@ -96,6 +99,7 @@ public class ExpressionFiller {
     }
 
     public static void fillRelationExpression(final Relation relationExpression, final RelationProps relationProps) {
+        relationExpression.setId(new Id(relationProps.uid));
         relationExpression.getColumn().clear();
         relationExpression.getColumn().addAll(columnsConvertForRelationExpression(relationProps));
         IntStream.range(0, relationProps.columns.length)
@@ -105,6 +109,7 @@ public class ExpressionFiller {
     }
 
     public static void fillListExpression(final List listExpression, final ListProps listProps) {
+        listExpression.setId(new Id(listProps.uid));
         listExpression.getComponentWidths().set(1, listProps.width);
         listExpression.getExpression().clear();
         listExpression.getExpression().addAll(itemsConvertForListExpression(listProps, listExpression));
@@ -112,6 +117,7 @@ public class ExpressionFiller {
 
     public static void fillInvocationExpression(final Invocation invocationExpression, final InvocationProps invocationProps) {
         final LiteralExpression invokedFunction = new LiteralExpression();
+        invocationExpression.setId(new Id(invocationProps.uid));
         invocationExpression.getComponentWidths().set(1, invocationProps.entryInfoWidth);
         invocationExpression.getComponentWidths().set(2, invocationProps.entryExpressionWidth);
         invokedFunction.setText(new Text(invocationProps.invokedFunction));
@@ -123,6 +129,7 @@ public class ExpressionFiller {
 
     public static void fillFunctionExpression(final FunctionDefinition functionExpression, final FunctionProps functionProps) {
         final FunctionDefinition.Kind functionKind = FunctionDefinition.Kind.fromValue(functionProps.functionKind);
+        functionExpression.setId(new Id(functionProps.uid));
         functionExpression.getComponentWidths().set(1, functionProps.parametersWidth);
         functionExpression.getFormalParameter().clear();
         functionExpression.getFormalParameter().addAll(formalParametersConvertForFunctionExpression(functionProps));
@@ -131,6 +138,7 @@ public class ExpressionFiller {
     }
 
     public static void fillDecisionTableExpression(final DecisionTable decisionTableExpression, final DecisionTableProps decisionTableProps) {
+        decisionTableExpression.setId(new Id(decisionTableProps.uid));
         if (StringUtils.nonEmpty(decisionTableProps.hitPolicy)) {
             decisionTableExpression.setHitPolicy(HitPolicy.fromValue(decisionTableProps.hitPolicy));
         }
@@ -149,44 +157,45 @@ public class ExpressionFiller {
     }
 
     public static ExpressionProps buildAndFillJsInteropProp(final Expression wrappedExpression, final String expressionName, final String dataType) {
+        final String uid = wrappedExpression.getId().getValue();
         if (wrappedExpression instanceof IsLiteralExpression) {
             final LiteralExpression literalExpression = (LiteralExpression) wrappedExpression;
             final Double width = literalExpression.getComponentWidths().get(0);
-            return new LiteralExpressionProps(expressionName, dataType, literalExpression.getText().getValue(), width);
+            return new LiteralExpressionProps(uid, expressionName, dataType, literalExpression.getText().getValue(), width);
         } else if (wrappedExpression instanceof Context) {
             final Context contextExpression = (Context) wrappedExpression;
             final Double entryInfoWidth = contextExpression.getComponentWidths().get(1);
             final Double entryExpressionWidth = contextExpression.getComponentWidths().get(2);
-            return new ContextProps(expressionName, dataType, contextEntriesConvertForContextProps(contextExpression), contextResultConvertForContextProps(contextExpression), entryInfoWidth, entryExpressionWidth);
+            return new ContextProps(uid, expressionName, dataType, contextEntriesConvertForContextProps(contextExpression), contextResultConvertForContextProps(contextExpression), entryInfoWidth, entryExpressionWidth);
         } else if (wrappedExpression instanceof Relation) {
             final Relation relationExpression = (Relation) wrappedExpression;
-            return new RelationProps(expressionName, dataType, columnsConvertForRelationProps(relationExpression), rowsConvertForRelationProps(relationExpression));
+            return new RelationProps(uid, expressionName, dataType, columnsConvertForRelationProps(relationExpression), rowsConvertForRelationProps(relationExpression));
         } else if (wrappedExpression instanceof List) {
             final List listExpression = (List) wrappedExpression;
             final Double width = listExpression.getComponentWidths().get(1);
-            return new ListProps(expressionName, dataType, itemsConvertForListProps(listExpression), width);
+            return new ListProps(uid, expressionName, dataType, itemsConvertForListProps(listExpression), width);
         } else if (wrappedExpression instanceof Invocation) {
             final Invocation invocationExpression = (Invocation) wrappedExpression;
             final String invokedFunction = ((LiteralExpression) Optional.ofNullable(invocationExpression.getExpression()).orElse(new LiteralExpression())).getText().getValue();
             final Double entryInfoWidth = invocationExpression.getComponentWidths().get(1);
             final Double entryExpressionWidth = invocationExpression.getComponentWidths().get(2);
-            return new InvocationProps(expressionName, dataType, invokedFunction, bindingsConvertForInvocationProps(invocationExpression), entryInfoWidth, entryExpressionWidth);
+            return new InvocationProps(uid, expressionName, dataType, invokedFunction, bindingsConvertForInvocationProps(invocationExpression), entryInfoWidth, entryExpressionWidth);
         } else if (wrappedExpression instanceof FunctionDefinition) {
             final FunctionDefinition functionExpression = (FunctionDefinition) wrappedExpression;
             final EntryInfo[] formalParameters = formalParametersConvertForFunctionProps(functionExpression);
             final Double parametersWidth = functionExpression.getComponentWidths().get(1);
-            return specificFunctionPropsBasedOnFunctionKind(expressionName, dataType, functionExpression, formalParameters, parametersWidth);
+            return specificFunctionPropsBasedOnFunctionKind(uid, expressionName, dataType, functionExpression, formalParameters, parametersWidth);
         } else if (wrappedExpression instanceof DecisionTable) {
             final DecisionTable decisionTableExpression = (DecisionTable) wrappedExpression;
             final String hitPolicy = decisionTableExpression.getHitPolicy() != null ? decisionTableExpression.getHitPolicy().value() : null;
             final String aggregation = decisionTableExpression.getAggregation() != null ? decisionTableExpression.getAggregation().getCode() : "";
-            return new DecisionTableProps(expressionName, dataType, hitPolicy, aggregation,
+            return new DecisionTableProps(uid, expressionName, dataType, hitPolicy, aggregation,
                                           annotationsConvertForDecisionTableProps(decisionTableExpression),
                                           inputConvertForDecisionTableProps(decisionTableExpression),
                                           outputConvertForDecisionTableProps(decisionTableExpression),
                                           rulesConvertForDecisionTableProps(decisionTableExpression));
         }
-        return new ExpressionProps(expressionName, dataType, null);
+        return new ExpressionProps(uid, expressionName, dataType, null);
     }
 
     /**
@@ -342,7 +351,7 @@ public class ExpressionFiller {
                 final FeelFunctionProps feelFunctionProps = (FeelFunctionProps) functionProps;
                 return buildAndFillNestedExpression(
                         Optional.ofNullable(feelFunctionProps.expression)
-                                .orElse(new LiteralExpressionProps("Nested Literal Expression", UNDEFINED.getText(), "", null))
+                                .orElse(new LiteralExpressionProps(new Id().getValue(), "Nested Literal Expression", UNDEFINED.getText(), "", null))
                 );
         }
     }
@@ -518,19 +527,19 @@ public class ExpressionFiller {
                 .toArray(EntryInfo[]::new);
     }
 
-    private static FunctionProps specificFunctionPropsBasedOnFunctionKind(final String expressionName, final String dataType, final FunctionDefinition functionExpression, final EntryInfo[] formalParameters, final Double parametersWidth) {
+    private static FunctionProps specificFunctionPropsBasedOnFunctionKind(final String uid, final String expressionName, final String dataType, final FunctionDefinition functionExpression, final EntryInfo[] formalParameters, final Double parametersWidth) {
         switch (functionExpression.getKind()) {
             case JAVA:
                 final String classNameExpression = getEntryAt(functionExpression.getExpression(), 0);
                 final String methodNameExpression = getEntryAt(functionExpression.getExpression(), 1);
-                return new JavaFunctionProps(expressionName, dataType, formalParameters, parametersWidth, classNameExpression, methodNameExpression);
+                return new JavaFunctionProps(uid, expressionName, dataType, formalParameters, parametersWidth, classNameExpression, methodNameExpression);
             case PMML:
                 final String documentExpression = getEntryAt(functionExpression.getExpression(), 0);
                 final String modelExpression = getEntryAt(functionExpression.getExpression(), 1);
-                return new PmmlFunctionProps(expressionName, dataType, formalParameters, parametersWidth, documentExpression, modelExpression);
+                return new PmmlFunctionProps(uid, expressionName, dataType, formalParameters, parametersWidth, documentExpression, modelExpression);
             default:
             case FEEL:
-                return new FeelFunctionProps(expressionName, dataType, formalParameters, parametersWidth,
+                return new FeelFunctionProps(uid, expressionName, dataType, formalParameters, parametersWidth,
                                              buildAndFillJsInteropProp(functionExpression.getExpression(), "Feel Expression", UNDEFINED.getText()));
         }
     }

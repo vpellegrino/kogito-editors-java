@@ -25,8 +25,8 @@ public class ListProps extends ExpressionProps {
     public final ExpressionProps[] items;
     public final Double width;
 
-    public ListProps(final String name, final String dataType, final ExpressionProps[] items, final Double width) {
-        super(name, dataType, LIST.getText());
+    public ListProps(final String uid, final String name, final String dataType, final ExpressionProps[] items, final Double width) {
+        super(uid, name, dataType, LIST.getText());
         this.items = items;
         this.width = width;
     }
