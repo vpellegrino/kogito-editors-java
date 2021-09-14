@@ -157,7 +157,7 @@ public class ExpressionFiller {
     }
 
     public static ExpressionProps buildAndFillJsInteropProp(final Expression wrappedExpression, final String expressionName, final String dataType) {
-        final String uid = wrappedExpression.getId().getValue();
+        final String uid = (wrappedExpression == null || wrappedExpression.getId() == null ? new Id() : wrappedExpression.getId()).getValue();
         if (wrappedExpression instanceof IsLiteralExpression) {
             final LiteralExpression literalExpression = (LiteralExpression) wrappedExpression;
             final Double width = literalExpression.getComponentWidths().get(0);
